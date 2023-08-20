@@ -17,7 +17,8 @@ class UWB3000Serial(serial.Serial):
 if __name__ == '__main__':
     ser = UWB3000Serial('/dev/ttyUSB0',115200)
     ser.reset_input_buffer()
-    while True: 
-        print(ser.read_distance())
-        time.sleep(0.1)
+    # while True: 
+    #     print(ser.read_distance())
+    #     time.sleep(0.1)
+    print(ser.read_distance())
     ser.close()
