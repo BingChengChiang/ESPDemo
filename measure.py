@@ -1,5 +1,16 @@
 import math
+import time
 from SerialCapture import UWB3000Serial
+from Circle import Circle
+
+
+
+FORWARD = 0.3
+TURN = 30
+PUSH = 2
+RADIUS = 0.5
+
+clockwise_flag = True
 
 def calculate_dist(a, b, c):
     # 使用余弦定理計算角A
@@ -25,50 +36,77 @@ def calculate_dist(a, b, c):
 ser = UWB3000Serial('/dev/ttyUSB0',115200)
 ser.reset_input_buffer()
 
-input("measure side b")
+input("Press enter to start process")
+
+time.sleep(1)
 side_b = float(ser.read_distance())
+input("Go Forward " + str(PUSH) +" steps then press enter")
 
-input("measure side c")
+time.sleep(1)
 side_c = float(ser.read_distance())
+input("Press enter")
 
-side_a = float(input("input side a in meter: "))
-(tangential_dist, normal_dist) = calculate_dist(side_a, side_b, side_c)
-print("tangential in meter: ", tangential_dist)
-print("normal in meter: ", normal_dist)
-
-
-
-
+(tangential_dist, normal_dist) = calculate_dist(PUSH*FORWARD, side_b, side_c)
+print("Go forward in meter: ", tangential_dist)
+print("Normal in meter: ", normal_dist)
 # go tangential distance
-# TODO
-input("go tangential")
+input("go forward " + str(round(tangential_dist/FORWARD)) + " steps then press enter")
 
 # try turn right
-input("turn right")
-# TODO
+input("turn right then press enter")
+
+print("measuring...")
+time.sleep(1)
 dist1 = float(ser.read_distance())
-input("measure test1")
-print(ser.read_distance())
-# go some distance
-# TODO
+print("distance test 1 = ", dist1, " m")
+input("back 2 steps then press enter")
+
+print("measuring...")
+time.sleep(1)
 dist2 = float(ser.read_distance())
-input("measure test2")
-print(ser.read_distance())
+print("distance test 2= ", dist2, " m")
+input("2 steps forward and press enter")
 
-if dist2 > dist1:
-    input("turn back!!")
-    # turn back
-    # TODO
-    pass
+if dist2 < dist1:
+    clockwise_flag = False
+    print('you have opposite direction')
+    print('U turn and press enter')
+else:
+    print("you have correct direction")
 
-input("go straight")
+
+# go normal distance
+input("go forward " + str(round(normal_dist/FORWARD)-1) + " steps then press enter")
+
 
 while True:
-    input("measure")
-    print(float(ser.read_distance()))
-# now the direction is correct
-# go forward until dist < 30
+    radius = float(ser.read_distance())
+    if radius <= RADIUS:
+        break
 
+    else:
+        time.sleep(1)
+        side_b = float(ser.read_distance())
+        input("Go Forward 1 step then press enter")
 
+        time.sleep(1)
+        side_c = float(ser.read_distance())
+        input("Press enter")
+        
+        (tangential_dist, normal_dist) = calculate_dist(FORWARD, side_b, side_c)
+        print("Go forward in meter: ", tangential_dist)
+        print("Normal in meter: ", normal_dist)
+        # go tangential distance
+        input("go forward " + str(round(tangential_dist/FORWARD)) + " steps then press enter")
+       
+        #turn
+        if clockwise:
+            input("turn right then press enter")
+        else:
+            input("turn left then press enter")
 
+        # go normal distance
+        input("go forward " + str(round(normal_dist/FORWARD)) + " steps then press enter")
+
+print('good! distance satisfied')
 ser.close()
